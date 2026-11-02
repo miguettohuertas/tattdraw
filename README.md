@@ -4,8 +4,22 @@ App para tatuadores modelarem a parte do corpo do cliente em 3D, desenharem a ta
 gravarem um vídeo para mostrar como vai ficar. Roda no navegador e, empacotado com Capacitor, em
 tablets e celulares Android.
 
-> Estado atual: **prova de conceito**. A cena 3D funciona com um modelo provisório; a pintura ainda
-> não está ligada à tela.
+> Estado atual: **prova de conceito**. Dá para pintar com caneta ou mouse num modelo provisório
+> (uma cápsula do tamanho de um antebraço). Ainda faltam desfazer, camadas, carimbos e vídeo.
+
+## Como usar
+
+| Ação                                                 | Resultado                          |
+| ---------------------------------------------------- | ---------------------------------- |
+| Caneta ou botão esquerdo do mouse **sobre o modelo** | Pinta (a caneta usa a pressão)     |
+| Arrastar começando **fora** do modelo                | Gira a câmera                      |
+| Arrastar com **um dedo**                             | Gira a câmera (o dedo nunca pinta) |
+| Pinça com dois dedos, ou roda do mouse               | Aproxima e afasta                  |
+| Botão direito do mouse                               | Arrasta a cena                     |
+| Botão **Limpar**                                     | Apaga toda a pintura               |
+
+O canto inferior esquerdo mostra o tamanho da textura e os quadros por segundo. Para testar o
+limite do aparelho, abra o app com `?tex=4096` no fim do endereço (o padrão é 2048).
 
 ## Começando
 
