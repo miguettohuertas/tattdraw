@@ -1,0 +1,10 @@
+{
+  "name": "@tattdraw/paint-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lógica de pintura do TattDraw: pincéis, traços e conversão UV → pixel. Não depende de UI nem de three.js.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
