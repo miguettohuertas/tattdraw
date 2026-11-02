@@ -1,0 +1,17 @@
+# Finais de linha consistentes entre Windows, macOS e Linux.
+* text=auto eol=lf
+
+# Arquivos grandes de arte vão para o Git LFS (só dentro de assets/).
+# Assim o histórico do Git continua leve e o limite de 100 MB por arquivo do GitHub não é um problema.
+assets/**/*.glb   filter=lfs diff=lfs merge=lfs -text
+assets/**/*.gltf  filter=lfs diff=lfs merge=lfs -text
+assets/**/*.bin   filter=lfs diff=lfs merge=lfs -text
+assets/**/*.obj   filter=lfs diff=lfs merge=lfs -text
+assets/**/*.fbx   filter=lfs diff=lfs merge=lfs -text
+assets/**/*.blend filter=lfs diff=lfs merge=lfs -text
+assets/**/*.png   filter=lfs diff=lfs merge=lfs -text
+assets/**/*.jpg   filter=lfs diff=lfs merge=lfs -text
+assets/**/*.jpeg  filter=lfs diff=lfs merge=lfs -text
+assets/**/*.exr   filter=lfs diff=lfs merge=lfs -text
+assets/**/*.hdr   filter=lfs diff=lfs merge=lfs -text
+assets/**/*.ktx2  filter=lfs diff=lfs merge=lfs -text

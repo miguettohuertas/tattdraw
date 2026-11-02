@@ -1,0 +1,28 @@
+# Dependências (recriadas com "npm ci")
+node_modules/
+
+# Saídas de build e de testes (recriadas a qualquer momento)
+dist/
+coverage/
+*.tsbuildinfo
+
+# Projetos nativos gerados pelo Capacitor (quando existirem)
+apps/mobile/android/app/build/
+apps/mobile/android/.gradle/
+
+# Variáveis de ambiente locais: nunca versionar segredos
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+*.log
+
+# Sistema operacional e editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
