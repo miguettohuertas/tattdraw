@@ -8,7 +8,11 @@
     <title>TattDraw</title>
   </head>
   <body>
-    <canvas id="viewport" aria-label="Modelo 3D"></canvas>
+    <canvas id="viewport" aria-label="Modelo 3D: desenhe com a caneta ou o mouse"></canvas>
+    <div class="toolbar">
+      <button id="clear" type="button">Limpar</button>
+    </div>
+    <div id="hud" aria-live="off"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

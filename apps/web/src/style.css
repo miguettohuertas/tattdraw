@@ -4,6 +4,8 @@ body {
   height: 100%;
   background: #1d1d22;
   overflow: hidden;
+  font-family: system-ui, sans-serif;
+  color: #e8e6e3;
 }
 
 #viewport {
@@ -12,4 +14,35 @@ body {
   height: 100dvh;
   /* Sem isso, o navegador usa o toque para rolar e dar zoom na página em vez de girar o modelo. */
   touch-action: none;
+}
+
+.toolbar {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top));
+  right: 16px;
+}
+
+.toolbar button {
+  min-height: 44px; /* alvo de toque confortável para o dedo */
+  padding: 0 18px;
+  border: 1px solid #4a4a52;
+  border-radius: 10px;
+  background: #2a2a31;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+}
+
+.toolbar button:active {
+  background: #3a3a43;
+}
+
+#hud {
+  position: fixed;
+  left: 16px;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: #9a98a0;
+  pointer-events: none;
 }
