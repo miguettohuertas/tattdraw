@@ -13,16 +13,23 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { attachPaintInput } from './paint-input';
 import type { Brush } from './paint-input';
 import { PaintSurface } from './paint-surface';
+import type { HistoryState } from './paint-surface';
 
 export interface ViewerOptions {
   /** Lado da textura de pintura, em pixels. Padrão 2048. Use 4096 para testar o limite. */
   textureSize?: number;
   brush?: Partial<Brush>;
+  /** Avisa quando muda o que dá para desfazer ou refazer (para habilitar os botões). */
+  onHistoryChange?: (state: HistoryState) => void;
 }
 
 export interface Viewer {
-  /** Apaga toda a pintura. */
+  /** Apaga toda a pintura (também pode ser desfeito). */
   clearPaint(): void;
+  /** Desfaz o último traço. Devolve `false` se não havia o que desfazer. */
+  undo(): boolean;
+  /** Refaz o último traço desfeito. Devolve `false` se não havia o que refazer. */
+  redo(): boolean;
   /** Libera GPU, eventos e o loop de desenho. Chame ao sair da tela. */
   dispose(): void;
 }
@@ -53,6 +60,7 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
 
   // A pele é uma textura em que se pode pintar. Cor branca no material para não tingir a textura.
   const surface = new PaintSurface(options.textureSize ?? 2048, SKIN_COLOR);
+  surface.onHistoryChange = options.onHistoryChange ?? null;
   const geometry = new CapsuleGeometry(0.04, 0.22, 16, 64);
   const material = new MeshStandardMaterial({ map: surface.texture, roughness: 0.6 });
   const forearm = new Mesh(geometry, material);
@@ -98,6 +106,8 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
     clearPaint() {
       surface.clear();
     },
+    undo: () => surface.undo(),
+    redo: () => surface.redo(),
     dispose() {
       renderer.setAnimationLoop(null);
       observer.disconnect();

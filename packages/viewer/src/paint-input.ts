@@ -81,6 +81,8 @@ export function attachPaintInput(options: PaintInputOptions): () => void {
     canvas.setPointerCapture(e.pointerId);
     activePointer = e.pointerId;
     last = toPoint(e);
+    // Tudo que for pintado até a caneta levantar conta como UMA ação para o desfazer.
+    surface.beginStroke();
     stampAt(last, hit);
   };
 
@@ -106,6 +108,7 @@ export function attachPaintInput(options: PaintInputOptions): () => void {
     if (e.pointerId !== activePointer) return;
     activePointer = null;
     last = null;
+    surface.endStroke();
     if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
   };
 
@@ -115,6 +118,7 @@ export function attachPaintInput(options: PaintInputOptions): () => void {
   canvas.addEventListener('pointercancel', onPointerEnd);
 
   return () => {
+    surface.endStroke();
     canvas.removeEventListener('pointerdown', onPointerDown);
     canvas.removeEventListener('pointermove', onPointerMove);
     canvas.removeEventListener('pointerup', onPointerEnd);

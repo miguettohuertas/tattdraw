@@ -20,6 +20,8 @@ body {
   position: fixed;
   top: max(16px, env(safe-area-inset-top));
   right: 16px;
+  display: flex;
+  gap: 8px;
 }
 
 .toolbar button {
@@ -35,6 +37,10 @@ body {
 
 .toolbar button:active {
   background: #3a3a43;
+}
+
+.toolbar button:disabled {
+  opacity: 0.4;
 }
 
 #hud {

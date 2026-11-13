@@ -8,6 +8,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e as
 
 ### Adicionado
 
+- Desfazer e refazer traços, pelos botões ou por Ctrl+Z, Ctrl+Y e Ctrl+Shift+Z. "Limpar" também
+  pode ser desfeito. O histórico guarda até 50 ações ou 128 MB (ADR 0005).
+- `@tattdraw/paint-engine`: `History`, `includeEllipse` e `toPixelRect`, com testes.
 - Pintura no modelo 3D com caneta (pressão afina e engrossa o traço) e mouse. O pincel é medido em
   milímetros de pele, então tem a mesma largura em qualquer parte do modelo.
 - Dedo e arrastes começando fora do modelo giram a câmera em vez de pintar.
