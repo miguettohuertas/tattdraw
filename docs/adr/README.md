@@ -16,3 +16,4 @@ Como criar um novo:
 | [0003](0003-monorepo-npm-workspaces.md)       | Monorepo com npm workspaces              | Aceita   |
 | [0004](0004-somente-ferramentas-gratuitas.md) | Somente ferramentas sem custo            | Aceita   |
 | [0005](0005-desfazer-por-recortes.md)         | Desfazer guardando recortes da textura   | Aceita   |
+| [0006](0006-camadas.md)                       | Camadas como canvas transparentes        | Aceita   |

@@ -5,8 +5,8 @@ gravarem um vídeo para mostrar como vai ficar. Roda no navegador e, empacotado 
 tablets e celulares Android.
 
 > Estado atual: **prova de conceito**. Dá para pintar com caneta ou mouse num modelo provisório
-> (uma cápsula do tamanho de um antebraço), escolher cor e tamanho, apagar e desfazer. Ainda faltam
-> camadas, carimbos e vídeo.
+> (uma cápsula do tamanho de um antebraço), escolher cor e tamanho, apagar, desfazer e trabalhar em
+> camadas. Ainda faltam carimbos, o modelo de corpo real e vídeo.
 
 ## Como usar
 
@@ -17,16 +17,34 @@ tablets e celulares Android.
 | Arrastar com **um dedo**                             | Gira a câmera (o dedo nunca pinta)                |
 | Pinça com dois dedos, ou roda do mouse               | Aproxima e afasta                                 |
 | Botão direito do mouse                               | Arrasta a cena                                    |
-| Botão **Pincel** ou tecla B                          | Pinta com a cor escolhida                         |
-| Botão **Borracha** ou tecla E                        | Apaga, voltando à cor da pele                     |
+| Ícone de lápis, ou tecla B                           | Pincel: pinta com a cor escolhida                 |
+| Ícone de borracha, ou tecla E                        | Borracha: apaga só a camada escolhida             |
 | Bolinhas de cor                                      | Escolhem a cor (a última abre o seletor de cores) |
 | Controle de tamanho, ou teclas [ e ]                 | Largura do traço, de 0,5 a 30 mm                  |
-| Botão ↶ ou Ctrl+Z                                    | Desfaz o último traço                             |
-| Botão ↷, Ctrl+Y ou Ctrl+Shift+Z                      | Refaz o traço desfeito                            |
-| Botão **Limpar**                                     | Apaga toda a pintura (dá para desfazer)           |
+| Botão ↶ ou Ctrl+Z                                    | Desfaz a última ação                              |
+| Botão ↷, Ctrl+Y ou Ctrl+Shift+Z                      | Refaz a ação desfeita                             |
+| Ícone de folhas empilhadas                           | Abre e fecha o painel de camadas (Esc fecha)      |
 
 O tamanho é a largura do traço na pele com pressão máxima da caneta; com pouca pressão, o traço
 fica mais fino. O pincel e a borracha lembram cada um o seu tamanho.
+
+### Camadas
+
+Uma camada é uma folha transparente por cima da pele. O pincel e a borracha agem só na camada
+escolhida, que aparece destacada no painel. A lista mostra a camada de cima primeiro.
+
+| No painel     | Resultado                                                    |
+| ------------- | ------------------------------------------------------------ |
+| Tocar no nome | Escolhe a camada em que se desenha                           |
+| Olho          | Oculta ou mostra a camada (não dá para desenhar numa oculta) |
+| Opacidade     | Deixa a camada escolhida mais transparente                   |
+| **+**         | Cria uma camada vazia acima da escolhida                     |
+| ↑ e ↓         | Sobe ou desce a camada na pilha                              |
+| **Limpar**    | Apaga tudo da camada escolhida                               |
+| Lixeira       | Exclui a camada (sempre sobra pelo menos uma)                |
+
+Desenhar, apagar, limpar, criar e excluir camada podem ser desfeitos. Ocultar, reordenar e mudar
+a opacidade não entram no histórico. O limite é de 8 camadas (4 com `?tex=4096`).
 
 O histórico guarda até 50 ações (ou 128 MB de recortes da textura); as mais antigas são esquecidas.
 

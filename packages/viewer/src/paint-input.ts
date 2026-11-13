@@ -2,12 +2,10 @@ import { Raycaster, Vector2 } from 'three';
 import type { Camera, Intersection, Mesh } from 'three';
 import { brushRadius, interpolateStroke } from '@tattdraw/paint-engine';
 import type { StrokePoint } from '@tattdraw/paint-engine';
-import type { PaintSurface } from './paint-surface';
-
-export type BrushTool = 'pen' | 'eraser';
+import type { BrushTool, PaintSurface } from './paint-surface';
 
 export interface Brush {
-  /** Pincel pinta com `color`; borracha devolve a cor da pele. */
+  /** Pincel pinta com `color`; borracha deixa a camada transparente por onde passa. */
   tool: BrushTool;
   /** Raio com pressão máxima, em metros de pele (0.0025 = 2,5 mm). */
   radius: number;
@@ -73,10 +71,7 @@ export function attachPaintInput(options: PaintInputOptions): () => void {
   });
 
   const stampAt = (point: StrokePoint, hit: Intersection): void => {
-    // Por enquanto existe uma camada só, colada na pele: apagar é pintar com a cor da pele.
-    // Quando entrarem as camadas, a borracha passará a deixar a camada transparente.
-    const color = brush.tool === 'eraser' ? surface.baseColor : brush.color;
-    surface.stamp(hit, brushRadius(brush.radius, point.pressure), color);
+    surface.stamp(hit, brushRadius(brush.radius, point.pressure), brush.tool, brush.color);
   };
 
   const onPointerDown = (e: PointerEvent): void => {

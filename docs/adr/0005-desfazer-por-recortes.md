@@ -39,3 +39,8 @@ Opção 3, com estas regras:
 - Um traço que cruza a costura do UV gera um retângulo da largura toda da textura, portanto um
   recorte maior. Deve melhorar com o mapa UV do modelo de corpo definitivo.
 - Quando entrarem as camadas, cada item do histórico precisará dizer a qual camada pertence.
+
+## Atualização (2026-11-13)
+
+Com as camadas (ADR 0006), o backup passou a acompanhar só a camada ativa, e os recortes passaram
+a ser guardados como canvas pequenos em vez de `ImageData`. A ideia central continua a mesma.
