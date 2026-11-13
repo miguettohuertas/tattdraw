@@ -14,7 +14,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { attachPaintInput } from './paint-input';
 import type { Brush } from './paint-input';
 import { PaintSurface } from './paint-surface';
-import type { HistoryState } from './paint-surface';
+import type { HistoryState, LayersState } from './paint-surface';
 
 export interface ViewerOptions {
   /** Lado da textura de pintura, em pixels. Padrão 2048. Use 4096 para testar o limite. */
@@ -22,13 +22,30 @@ export interface ViewerOptions {
   brush?: Partial<Brush>;
   /** Avisa quando muda o que dá para desfazer ou refazer (para habilitar os botões). */
   onHistoryChange?: (state: HistoryState) => void;
+  /** Avisa quando a pilha de camadas muda (para redesenhar o painel). */
+  onLayersChange?: (state: LayersState) => void;
+  /** Avisa quando alguém tenta pintar numa camada oculta. */
+  onPaintBlocked?: () => void;
 }
 
 export interface Viewer {
   /** Troca cor, tamanho ou ferramenta do pincel. Só os campos informados mudam. */
   setBrush(changes: Partial<Brush>): void;
-  /** Apaga toda a pintura (também pode ser desfeito). */
+  /** Apaga tudo da camada ativa (também pode ser desfeito). */
   clearPaint(): void;
+  /** Estado atual das camadas, de baixo para cima. */
+  getLayers(): LayersState;
+  /** Cria uma camada vazia acima da ativa. Devolve `false` se o limite foi atingido. */
+  addLayer(): boolean;
+  /** Exclui uma camada (sempre sobra uma). Pode ser desfeito. */
+  removeLayer(id: string): boolean;
+  /** Escolhe em qual camada o pincel pinta. */
+  selectLayer(id: string): void;
+  setLayerVisible(id: string, visible: boolean): void;
+  /** Opacidade de 0 (invisível) a 1 (opaca). */
+  setLayerOpacity(id: string, opacity: number): void;
+  /** Move a camada na pilha: +1 sobe, -1 desce. */
+  moveLayer(id: string, delta: number): void;
   /** Desfaz o último traço. Devolve `false` se não havia o que desfazer. */
   undo(): boolean;
   /** Refaz o último traço desfeito. Devolve `false` se não havia o que refazer. */
@@ -69,6 +86,8 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
   // A pele é uma textura em que se pode pintar. Cor branca no material para não tingir a textura.
   const surface = new PaintSurface(options.textureSize ?? 2048, SKIN_COLOR);
   surface.onHistoryChange = options.onHistoryChange ?? null;
+  surface.onLayersChange = options.onLayersChange ?? null;
+  surface.onPaintBlocked = options.onPaintBlocked ?? null;
   const geometry = new CapsuleGeometry(0.04, 0.22, 16, 64);
   const material = new MeshStandardMaterial({ map: surface.texture, roughness: 0.6 });
   const forearm = new Mesh(geometry, material);
@@ -113,6 +132,13 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
     clearPaint() {
       surface.clear();
     },
+    getLayers: () => surface.layersState,
+    addLayer: () => surface.addLayer(),
+    removeLayer: (id) => surface.removeLayer(id),
+    selectLayer: (id) => surface.selectLayer(id),
+    setLayerVisible: (id, visible) => surface.setLayerVisible(id, visible),
+    setLayerOpacity: (id, opacity) => surface.setLayerOpacity(id, opacity),
+    moveLayer: (id, delta) => surface.moveLayer(id, delta),
     undo: () => surface.undo(),
     redo: () => surface.redo(),
     dispose() {
