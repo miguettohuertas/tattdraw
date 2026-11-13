@@ -3,6 +3,7 @@ import {
   CapsuleGeometry,
   Color,
   DirectionalLight,
+  MathUtils,
   Mesh,
   MeshStandardMaterial,
   PerspectiveCamera,
@@ -37,6 +38,11 @@ export interface Viewer {
 }
 
 const SKIN_COLOR = '#d9a58a';
+
+/** Campo de visão vertical em telas largas, em graus. */
+const BASE_FOV = 40;
+/** Abaixo desta proporção (largura ÷ altura), abrimos o campo de visão para o modelo caber. */
+const MIN_ASPECT = 1.2;
 const DEFAULT_BRUSH: Brush = { tool: 'pen', radius: 0.0025, color: '#1a1a1a' };
 
 /**
@@ -52,7 +58,7 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
   const scene = new Scene();
   scene.background = new Color(0x1d1d22);
 
-  const camera = new PerspectiveCamera(40, 1, 0.01, 10);
+  const camera = new PerspectiveCamera(BASE_FOV, 1, 0.01, 10);
   camera.position.set(0, 0.08, 0.5);
 
   scene.add(new AmbientLight(0xffffff, 0.6));
@@ -87,6 +93,7 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
     if (width === 0 || height === 0) return;
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
+    camera.fov = fovForAspect(camera.aspect);
     camera.updateProjectionMatrix();
   };
   const observer = new ResizeObserver(resize);
@@ -119,4 +126,17 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
       renderer.dispose();
     },
   };
+}
+
+/**
+ * Campo de visão vertical para uma proporção de tela.
+ *
+ * O campo de visão da câmera é medido na vertical. Numa tela em pé (celular na vertical), a
+ * largura visível encolhe e o modelo, que é comprido, seria cortado dos lados. Então, abaixo de
+ * `MIN_ASPECT`, aumentamos o campo vertical o bastante para a largura visível continuar a mesma.
+ */
+function fovForAspect(aspect: number): number {
+  if (aspect >= MIN_ASPECT) return BASE_FOV;
+  const halfHorizontal = Math.tan(MathUtils.degToRad(BASE_FOV / 2)) * MIN_ASPECT;
+  return MathUtils.radToDeg(2 * Math.atan(halfHorizontal / aspect));
 }
