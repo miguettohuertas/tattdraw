@@ -4,7 +4,11 @@ import { brushRadius, interpolateStroke } from '@tattdraw/paint-engine';
 import type { StrokePoint } from '@tattdraw/paint-engine';
 import type { PaintSurface } from './paint-surface';
 
+export type BrushTool = 'pen' | 'eraser';
+
 export interface Brush {
+  /** Pincel pinta com `color`; borracha devolve a cor da pele. */
+  tool: BrushTool;
   /** Raio com pressão máxima, em metros de pele (0.0025 = 2,5 mm). */
   radius: number;
   color: string;
@@ -15,6 +19,10 @@ export interface PaintInputOptions {
   camera: Camera;
   target: Mesh;
   surface: PaintSurface;
+  /**
+   * O pincel atual. É lido a cada carimbo, então quem chamou pode alterar o objeto a qualquer
+   * momento (trocar cor, tamanho ou ferramenta) e o próximo carimbo já usa o valor novo.
+   */
   brush: Brush;
 }
 
@@ -65,7 +73,10 @@ export function attachPaintInput(options: PaintInputOptions): () => void {
   });
 
   const stampAt = (point: StrokePoint, hit: Intersection): void => {
-    surface.stamp(hit, brushRadius(brush.radius, point.pressure), brush.color);
+    // Por enquanto existe uma camada só, colada na pele: apagar é pintar com a cor da pele.
+    // Quando entrarem as camadas, a borracha passará a deixar a camada transparente.
+    const color = brush.tool === 'eraser' ? surface.baseColor : brush.color;
+    surface.stamp(hit, brushRadius(brush.radius, point.pressure), color);
   };
 
   const onPointerDown = (e: PointerEvent): void => {

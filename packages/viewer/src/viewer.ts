@@ -24,6 +24,8 @@ export interface ViewerOptions {
 }
 
 export interface Viewer {
+  /** Troca cor, tamanho ou ferramenta do pincel. Só os campos informados mudam. */
+  setBrush(changes: Partial<Brush>): void;
   /** Apaga toda a pintura (também pode ser desfeito). */
   clearPaint(): void;
   /** Desfaz o último traço. Devolve `false` se não havia o que desfazer. */
@@ -35,7 +37,7 @@ export interface Viewer {
 }
 
 const SKIN_COLOR = '#d9a58a';
-const DEFAULT_BRUSH: Brush = { radius: 0.0025, color: '#1a1a1a' };
+const DEFAULT_BRUSH: Brush = { tool: 'pen', radius: 0.0025, color: '#1a1a1a' };
 
 /**
  * Cria a cena 3D dentro de um <canvas> e liga a pintura.
@@ -69,13 +71,8 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
   forearm.updateMatrixWorld();
 
   // A pintura precisa escutar o canvas ANTES do OrbitControls (veja paint-input.ts).
-  const detachPaint = attachPaintInput({
-    canvas,
-    camera,
-    target: forearm,
-    surface,
-    brush: { ...DEFAULT_BRUSH, ...options.brush },
-  });
+  const brush: Brush = { ...DEFAULT_BRUSH, ...options.brush };
+  const detachPaint = attachPaintInput({ canvas, camera, target: forearm, surface, brush });
 
   // OrbitControls: arrastar gira, pinça/roda dá zoom, botão direito arrasta a cena.
   const controls = new OrbitControls(camera, canvas);
@@ -103,6 +100,9 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
   });
 
   return {
+    setBrush(changes) {
+      Object.assign(brush, changes);
+    },
     clearPaint() {
       surface.clear();
     },
