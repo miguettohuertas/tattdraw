@@ -10,12 +10,27 @@
   <body>
     <canvas id="viewport" aria-label="Modelo 3D: desenhe com a caneta ou o mouse"></canvas>
 
+    <!-- Os ícones (data-icon) são desenhados por src/icons.ts. -->
     <div class="topbar">
       <div class="group" role="toolbar" aria-label="Pincel">
-        <button id="tool-pen" type="button" aria-pressed="true" title="Pincel (B)">Pincel</button>
-        <button id="tool-eraser" type="button" aria-pressed="false" title="Borracha (E)">
-          Borracha
-        </button>
+        <button
+          id="tool-pen"
+          class="icon"
+          data-icon="pen"
+          type="button"
+          aria-pressed="true"
+          aria-label="Pincel"
+          title="Pincel (B)"
+        ></button>
+        <button
+          id="tool-eraser"
+          class="icon"
+          data-icon="eraser"
+          type="button"
+          aria-pressed="false"
+          aria-label="Borracha"
+          title="Borracha (E)"
+        ></button>
 
         <!-- Os botões das cores da paleta são criados em brush-controls.ts. -->
         <div id="swatches" class="swatches" role="group" aria-label="Cor">
@@ -24,44 +39,93 @@
           </label>
         </div>
 
-        <label class="size" title="Tamanho ([ e ])">
+        <label class="slider" title="Tamanho ([ e ])">
           <span id="size-label">5 mm</span>
           <input id="size" type="range" min="0.5" max="30" step="0.5" value="5" />
         </label>
       </div>
 
-      <div class="group" role="toolbar" aria-label="Histórico">
-        <!-- Ícones no lugar do texto para a barra caber numa linha só no celular deitado. -->
+      <div class="group" role="toolbar" aria-label="Histórico e camadas">
         <button
           id="undo"
           class="icon"
+          data-icon="undo"
           type="button"
           disabled
-          title="Desfazer (Ctrl+Z)"
           aria-label="Desfazer"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9 14 4 9l5-5" />
-            <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />
-          </svg>
-        </button>
+          title="Desfazer (Ctrl+Z)"
+        ></button>
         <button
           id="redo"
           class="icon"
+          data-icon="redo"
           type="button"
           disabled
-          title="Refazer (Ctrl+Y)"
           aria-label="Refazer"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="m15 14 5-5-5-5" />
-            <path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" />
-          </svg>
-        </button>
-        <button id="clear" type="button">Limpar</button>
+          title="Refazer (Ctrl+Y)"
+        ></button>
+        <button
+          id="layers-toggle"
+          class="icon"
+          data-icon="layers"
+          type="button"
+          aria-expanded="false"
+          aria-pressed="false"
+          aria-controls="layers-panel"
+          aria-label="Camadas"
+          title="Camadas"
+        ></button>
       </div>
+
+      <!-- Painel de camadas: a lista é preenchida por src/layers-panel.ts. -->
+      <section id="layers-panel" class="panel" aria-label="Camadas" hidden>
+        <ul id="layer-list"></ul>
+
+        <label class="slider" title="Opacidade da camada escolhida">
+          <span>Opacidade</span>
+          <input id="layer-opacity" type="range" min="0" max="100" step="5" value="100" />
+          <output id="opacity-label" for="layer-opacity">100%</output>
+        </label>
+
+        <div class="panel-actions">
+          <button
+            id="layer-add"
+            class="icon"
+            data-icon="plus"
+            type="button"
+            aria-label="Nova camada"
+            title="Nova camada"
+          ></button>
+          <button
+            id="layer-up"
+            class="icon"
+            data-icon="up"
+            type="button"
+            aria-label="Subir camada"
+            title="Subir camada"
+          ></button>
+          <button
+            id="layer-down"
+            class="icon"
+            data-icon="down"
+            type="button"
+            aria-label="Descer camada"
+            title="Descer camada"
+          ></button>
+          <button id="clear" type="button" title="Apagar tudo desta camada">Limpar</button>
+          <button
+            id="layer-remove"
+            class="icon"
+            data-icon="trash"
+            type="button"
+            aria-label="Excluir camada"
+            title="Excluir camada"
+          ></button>
+        </div>
+      </section>
     </div>
 
+    <div id="toast" role="status" hidden></div>
     <div id="hud" aria-live="off"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

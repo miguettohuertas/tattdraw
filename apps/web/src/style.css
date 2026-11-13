@@ -48,7 +48,9 @@ body {
   pointer-events: auto;
 }
 
-.group button:not(.swatch) {
+/* ---------- Botões ---------- */
+
+.topbar button:not(.swatch) {
   min-height: 44px; /* alvo de toque confortável para o dedo */
   padding: 0 14px;
   border: 1px solid var(--border);
@@ -60,14 +62,14 @@ body {
 }
 
 /* Botão só com ícone: quadrado, com o desenho centralizado. */
-.group button.icon {
+.topbar button.icon {
   display: grid;
   place-items: center;
   width: 44px;
   padding: 0;
 }
 
-.group button.icon svg {
+.topbar button.icon svg {
   width: 22px;
   height: 22px;
   fill: none;
@@ -77,20 +79,22 @@ body {
   stroke-linejoin: round;
 }
 
-.group button:not(.swatch):active {
+.topbar button:not(.swatch):active {
   background: var(--panel-active);
 }
 
-.group button:disabled {
+.topbar button:disabled {
   opacity: 0.4;
 }
 
-/* Ferramenta escolhida. */
+/* Ferramenta escolhida, ou painel aberto. */
 .group button:not(.swatch)[aria-pressed='true'] {
   border-color: var(--accent);
   background: var(--panel-active);
   color: var(--accent);
 }
+
+/* ---------- Cores ---------- */
 
 .swatches {
   display: flex;
@@ -142,7 +146,9 @@ body {
   opacity: 1;
 }
 
-.size {
+/* ---------- Controles deslizantes (tamanho e opacidade) ---------- */
+
+.slider {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -152,16 +158,126 @@ body {
   border-radius: 10px;
   background: var(--panel);
   font-size: 14px;
-}
-
-.size span {
-  min-width: 48px;
   font-variant-numeric: tabular-nums;
 }
 
-.size input {
+.slider input {
   width: 100px;
+  min-width: 0;
   accent-color: var(--accent);
+}
+
+#size-label {
+  min-width: 48px;
+}
+
+/* ---------- Painel de camadas ---------- */
+
+.panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 248px;
+  max-width: 100%;
+  /* Nunca passa da tela: se houver muitas camadas, a lista rola. */
+  max-height: calc(100dvh - 100% - 40px);
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg);
+  pointer-events: auto;
+}
+
+.panel[hidden],
+#toast[hidden] {
+  display: none;
+}
+
+#layer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 46px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.layer {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 10px;
+}
+
+/* Camada em que o pincel está pintando. */
+.layer[aria-current='true'] {
+  border-color: var(--accent);
+  background: var(--panel-active);
+}
+
+/* Dentro da linha, os botões não têm moldura: a linha inteira é o "cartão". */
+.topbar .layer button:not(.swatch) {
+  border: 0;
+  background: none;
+}
+
+.topbar .layer .layer-name {
+  flex: 1;
+  padding-left: 4px;
+  text-align: left;
+}
+
+.layer.is-hidden .layer-name,
+.layer.is-hidden .eye {
+  color: var(--text-muted);
+}
+
+.panel .slider {
+  border: 0;
+  padding: 0 4px;
+  background: none;
+}
+
+.panel .slider input {
+  flex: 1;
+}
+
+.panel .slider output {
+  min-width: 40px;
+  text-align: right;
+}
+
+.panel-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.panel-actions #clear {
+  flex: 1;
+  padding: 0 8px;
+}
+
+/* ---------- Avisos ---------- */
+
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: max(48px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  max-width: calc(100vw - 48px);
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  font-size: 14px;
+  pointer-events: none;
 }
 
 #hud {
