@@ -1,11 +1,21 @@
+:root {
+  --bg: #1d1d22;
+  --panel: #2a2a31;
+  --panel-active: #3a3a43;
+  --border: #4a4a52;
+  --text: #e8e6e3;
+  --text-muted: #9a98a0;
+  --accent: #e0a585;
+}
+
 html,
 body {
   margin: 0;
   height: 100%;
-  background: #1d1d22;
+  background: var(--bg);
   overflow: hidden;
   font-family: system-ui, sans-serif;
-  color: #e8e6e3;
+  color: var(--text);
 }
 
 #viewport {
@@ -16,39 +26,150 @@ body {
   touch-action: none;
 }
 
-.toolbar {
+/* Barra do topo: pincel à esquerda, histórico à direita. Em telas estreitas, quebra em linhas. */
+.topbar {
   position: fixed;
-  top: max(16px, env(safe-area-inset-top));
-  right: 16px;
+  top: max(12px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 16px;
+  /* A barra em si deixa o toque passar para o modelo; só os controles capturam. */
+  pointer-events: none;
 }
 
-.toolbar button {
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.group button:not(.swatch) {
   min-height: 44px; /* alvo de toque confortável para o dedo */
-  padding: 0 18px;
-  border: 1px solid #4a4a52;
+  padding: 0 14px;
+  border: 1px solid var(--border);
   border-radius: 10px;
-  background: #2a2a31;
+  background: var(--panel);
   color: inherit;
   font: inherit;
   font-size: 15px;
 }
 
-.toolbar button:active {
-  background: #3a3a43;
+/* Botão só com ícone: quadrado, com o desenho centralizado. */
+.group button.icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  padding: 0;
 }
 
-.toolbar button:disabled {
+.group button.icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.group button:not(.swatch):active {
+  background: var(--panel-active);
+}
+
+.group button:disabled {
   opacity: 0.4;
+}
+
+/* Ferramenta escolhida. */
+.group button:not(.swatch)[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--panel-active);
+  color: var(--accent);
+}
+
+.swatches {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px;
+}
+
+.swatch {
+  box-sizing: border-box;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  background: var(--swatch);
+}
+
+/* Cor escolhida: anel em volta. */
+.swatch[aria-pressed='true'],
+.swatch.selected {
+  border-color: var(--bg);
+  outline: 2px solid var(--accent);
+}
+
+/* "Outra cor": o seletor de cor do sistema, com cara de bolinha colorida. */
+.swatch.custom {
+  position: relative;
+  overflow: hidden;
+  background: conic-gradient(#e5484d, #f5d90a, #46a758, #0090ff, #8e4ec6, #e5484d);
+}
+
+.swatch.custom.selected {
+  background: none;
+}
+
+.swatch.custom input {
+  position: absolute;
+  inset: -8px;
+  width: calc(100% + 16px);
+  height: calc(100% + 16px);
+  padding: 0;
+  border: 0;
+  opacity: 0; /* invisível até uma cor ser escolhida */
+  cursor: pointer;
+}
+
+.swatch.custom.selected input {
+  opacity: 1;
+}
+
+.size {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  font-size: 14px;
+}
+
+.size span {
+  min-width: 48px;
+  font-variant-numeric: tabular-nums;
+}
+
+.size input {
+  width: 100px;
+  accent-color: var(--accent);
 }
 
 #hud {
   position: fixed;
-  left: 16px;
+  left: max(16px, env(safe-area-inset-left));
   bottom: max(16px, env(safe-area-inset-bottom));
   font-size: 12px;
   font-variant-numeric: tabular-nums;
-  color: #9a98a0;
+  color: var(--text-muted);
   pointer-events: none;
 }

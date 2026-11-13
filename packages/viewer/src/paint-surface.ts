@@ -51,6 +51,8 @@ const MAX_UNDO_BYTES = 128 * 1024 * 1024;
 export class PaintSurface {
   readonly texture: CanvasTexture;
   readonly size: number;
+  /** Cor da pele: o fundo da textura e a cor que a borracha usa. */
+  readonly baseColor: string;
 
   /** Chamado sempre que muda o que dá para desfazer ou refazer (para atualizar os botões). */
   onHistoryChange: ((state: HistoryState) => void) | null = null;
@@ -59,7 +61,6 @@ export class PaintSurface {
   private readonly ctx: CanvasRenderingContext2D;
   private readonly backup: HTMLCanvasElement;
   private readonly backupCtx: CanvasRenderingContext2D;
-  private readonly baseColor: string;
   private readonly history = new History<Patch>({
     maxEntries: MAX_UNDO_STEPS,
     maxCost: MAX_UNDO_BYTES,

@@ -1,12 +1,8 @@
 import { createViewer } from '@tattdraw/viewer';
+import { setupBrushControls } from './brush-controls';
+import { getElement } from './dom';
 import { startFpsMeter } from './fps';
 import './style.css';
-
-function getElement<T extends HTMLElement>(selector: string): T {
-  const element = document.querySelector<T>(selector);
-  if (!element) throw new Error(`Elemento ${selector} não encontrado no index.html`);
-  return element;
-}
 
 const canvas = getElement<HTMLCanvasElement>('#viewport');
 const undoButton = getElement<HTMLButtonElement>('#undo');
@@ -26,6 +22,8 @@ const viewer = createViewer(canvas, {
     redoButton.disabled = !canRedo;
   },
 });
+
+const detachBrushControls = setupBrushControls(viewer);
 
 undoButton.addEventListener('click', () => viewer.undo());
 redoButton.addEventListener('click', () => viewer.redo());
@@ -52,6 +50,7 @@ const stopFps = startFpsMeter((fps) => {
 // Durante o desenvolvimento, o Vite recarrega este módulo; liberamos a cena antiga antes.
 import.meta.hot?.dispose(() => {
   window.removeEventListener('keydown', onKeyDown);
+  detachBrushControls();
   stopFps();
   viewer.dispose();
 });

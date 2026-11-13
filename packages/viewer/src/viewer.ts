@@ -3,6 +3,7 @@ import {
   CapsuleGeometry,
   Color,
   DirectionalLight,
+  MathUtils,
   Mesh,
   MeshStandardMaterial,
   PerspectiveCamera,
@@ -24,6 +25,8 @@ export interface ViewerOptions {
 }
 
 export interface Viewer {
+  /** Troca cor, tamanho ou ferramenta do pincel. Só os campos informados mudam. */
+  setBrush(changes: Partial<Brush>): void;
   /** Apaga toda a pintura (também pode ser desfeito). */
   clearPaint(): void;
   /** Desfaz o último traço. Devolve `false` se não havia o que desfazer. */
@@ -35,7 +38,12 @@ export interface Viewer {
 }
 
 const SKIN_COLOR = '#d9a58a';
-const DEFAULT_BRUSH: Brush = { radius: 0.0025, color: '#1a1a1a' };
+
+/** Campo de visão vertical em telas largas, em graus. */
+const BASE_FOV = 40;
+/** Abaixo desta proporção (largura ÷ altura), abrimos o campo de visão para o modelo caber. */
+const MIN_ASPECT = 1.2;
+const DEFAULT_BRUSH: Brush = { tool: 'pen', radius: 0.0025, color: '#1a1a1a' };
 
 /**
  * Cria a cena 3D dentro de um <canvas> e liga a pintura.
@@ -50,7 +58,7 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
   const scene = new Scene();
   scene.background = new Color(0x1d1d22);
 
-  const camera = new PerspectiveCamera(40, 1, 0.01, 10);
+  const camera = new PerspectiveCamera(BASE_FOV, 1, 0.01, 10);
   camera.position.set(0, 0.08, 0.5);
 
   scene.add(new AmbientLight(0xffffff, 0.6));
@@ -69,13 +77,8 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
   forearm.updateMatrixWorld();
 
   // A pintura precisa escutar o canvas ANTES do OrbitControls (veja paint-input.ts).
-  const detachPaint = attachPaintInput({
-    canvas,
-    camera,
-    target: forearm,
-    surface,
-    brush: { ...DEFAULT_BRUSH, ...options.brush },
-  });
+  const brush: Brush = { ...DEFAULT_BRUSH, ...options.brush };
+  const detachPaint = attachPaintInput({ canvas, camera, target: forearm, surface, brush });
 
   // OrbitControls: arrastar gira, pinça/roda dá zoom, botão direito arrasta a cena.
   const controls = new OrbitControls(camera, canvas);
@@ -90,6 +93,7 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
     if (width === 0 || height === 0) return;
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
+    camera.fov = fovForAspect(camera.aspect);
     camera.updateProjectionMatrix();
   };
   const observer = new ResizeObserver(resize);
@@ -103,6 +107,9 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
   });
 
   return {
+    setBrush(changes) {
+      Object.assign(brush, changes);
+    },
     clearPaint() {
       surface.clear();
     },
@@ -119,4 +126,17 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
       renderer.dispose();
     },
   };
+}
+
+/**
+ * Campo de visão vertical para uma proporção de tela.
+ *
+ * O campo de visão da câmera é medido na vertical. Numa tela em pé (celular na vertical), a
+ * largura visível encolhe e o modelo, que é comprido, seria cortado dos lados. Então, abaixo de
+ * `MIN_ASPECT`, aumentamos o campo vertical o bastante para a largura visível continuar a mesma.
+ */
+function fovForAspect(aspect: number): number {
+  if (aspect >= MIN_ASPECT) return BASE_FOV;
+  const halfHorizontal = Math.tan(MathUtils.degToRad(BASE_FOV / 2)) * MIN_ASPECT;
+  return MathUtils.radToDeg(2 * Math.atan(halfHorizontal / aspect));
 }
