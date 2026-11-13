@@ -8,6 +8,10 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e as
 
 ### Adicionado
 
+- Camadas: criar, escolher, ocultar, reordenar, mudar a opacidade, limpar e excluir, num painel
+  novo. Até 8 camadas (4 com textura de 4096 px). Criar e excluir podem ser desfeitos (ADR 0006).
+- Aviso na tela ao tentar desenhar numa camada oculta.
+- `@tattdraw/paint-engine`: regras de camadas (`nextLayerName`, `moveItem` e outras), com testes.
 - Ferramentas de desenho: pincel e borracha, cinco cores prontas mais uma cor à escolha, e tamanho
   de 0,5 a 30 mm. Cada ferramenta lembra o próprio tamanho. Atalhos: B, E, [ e ].
 - Desfazer e refazer traços, pelos botões ou por Ctrl+Z, Ctrl+Y e Ctrl+Shift+Z. "Limpar" também
@@ -26,6 +30,10 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e as
 
 ### Alterado
 
+- A borracha agora apaga de verdade (deixa a camada transparente) em vez de pintar com a cor da
+  pele, e age só na camada escolhida.
+- "Limpar" apaga só a camada escolhida e mudou para dentro do painel de camadas.
+- Pincel e Borracha viraram botões de ícone; a barra cabe numa linha a partir de 800 px.
 - Desfazer e Refazer viraram botões de ícone, para a barra caber numa linha no celular deitado.
 - O modelo provisório agora tem o tamanho aproximado de um antebraço (medidas em metros).
 
