@@ -9,3 +9,11 @@ export { History } from './history';
 export type { HistoryOptions } from './history';
 export { includeEllipse, toPixelRect } from './dirty-rect';
 export type { Bounds, PixelRect } from './dirty-rect';
+export {
+  activeIndexAfterRemoval,
+  clampOpacity,
+  moveItem,
+  moveTarget,
+  nextLayerName,
+} from './layers';
+export type { LayerInfo } from './layers';
