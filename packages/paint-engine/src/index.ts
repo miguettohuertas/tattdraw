@@ -17,3 +17,5 @@ export {
   nextLayerName,
 } from './layers';
 export type { LayerInfo } from './layers';
+export { fitWithin, hasTransparency, layerNameFromFile, surfaceFrame, whiteToAlpha } from './decal';
+export type { Frame } from './decal';
