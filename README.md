@@ -5,8 +5,8 @@ gravarem um vídeo para mostrar como vai ficar. Roda no navegador e, empacotado 
 tablets e celulares Android.
 
 > Estado atual: **prova de conceito**. Dá para pintar com caneta ou mouse num modelo provisório
-> (uma cápsula do tamanho de um antebraço), escolher cor e tamanho, apagar, desfazer e trabalhar em
-> camadas. Ainda faltam carimbos, o modelo de corpo real e vídeo.
+> (uma cápsula do tamanho de um antebraço), escolher cor e tamanho, apagar, desfazer, trabalhar em
+> camadas e aplicar desenhos prontos. Ainda faltam o modelo de corpo real e vídeo.
 
 ## Como usar
 
@@ -24,6 +24,7 @@ tablets e celulares Android.
 | Botão ↶ ou Ctrl+Z                                    | Desfaz a última ação                              |
 | Botão ↷, Ctrl+Y ou Ctrl+Shift+Z                      | Refaz a ação desfeita                             |
 | Ícone de folhas empilhadas                           | Abre e fecha o painel de camadas (Esc fecha)      |
+| Ícone de imagem                                      | Importa um desenho pronto para usar como carimbo  |
 
 O tamanho é a largura do traço na pele com pressão máxima da caneta; com pouca pressão, o traço
 fica mais fino. O pincel e a borracha lembram cada um o seu tamanho.
@@ -45,6 +46,27 @@ escolhida, que aparece destacada no painel. A lista mostra a camada de cima prim
 
 Desenhar, apagar, limpar, criar e excluir camada podem ser desfeitos. Ocultar, reordenar e mudar
 a opacidade não entram no histórico. O limite é de 8 camadas (4 com `?tex=4096`).
+
+### Carimbo (desenho pronto)
+
+O ícone de imagem abre a galeria ou os arquivos. A imagem aparece no centro da tela, projetada
+sobre a pele, e a barra de baixo substitui a de cima até você aplicar ou cancelar.
+
+| Ação                                       | Resultado                                    |
+| ------------------------------------------ | -------------------------------------------- |
+| Arrastar com a caneta ou o mouse no modelo | Move a imagem                                |
+| Tocar rápido com o dedo no modelo          | Leva a imagem até esse ponto                 |
+| Arrastar com o dedo                        | Gira a câmera, para ver de outro ângulo      |
+| **Tamanho**                                | Lado maior da imagem na pele, de 10 a 250 mm |
+| **Girar**                                  | Gira a imagem sobre a pele                   |
+| **Sem fundo**                              | Transforma o fundo branco em transparente    |
+| **Aplicar** ou Enter                       | Grava a imagem numa camada nova              |
+| **Cancelar** ou Esc                        | Descarta a imagem                            |
+
+"Sem fundo" já começa ligado em imagens sem transparência (JPG, fotos, desenhos escaneados).
+A camada criada leva o nome do arquivo e funciona como qualquer outra: dá para apagar partes,
+mudar a opacidade ou desfazer. A imagem é projetada de frente, então estica perto das bordas do
+braço (veja `docs/adr/0007-carimbo-por-projecao.md`).
 
 O histórico guarda até 50 ações (ou 128 MB de recortes da textura); as mais antigas são esquecidas.
 

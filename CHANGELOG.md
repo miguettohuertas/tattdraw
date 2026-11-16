@@ -8,6 +8,11 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e as
 
 ### Adicionado
 
+- Carimbo: importar um desenho pronto (PNG, JPG), posicionar sobre a pele com caneta, mouse ou
+  toque, ajustar tamanho e rotação e aplicar numa camada nova. Fundo branco vira transparente
+  automaticamente em imagens sem transparência (ADR 0007).
+- `@tattdraw/paint-engine`: `surfaceFrame`, `whiteToAlpha`, `fitWithin` e `layerNameFromFile`,
+  com testes.
 - Camadas: criar, escolher, ocultar, reordenar, mudar a opacidade, limpar e excluir, num painel
   novo. Até 8 camadas (4 com textura de 4096 px). Criar e excluir podem ser desfeitos (ADR 0006).
 - Aviso na tela ao tentar desenhar numa camada oculta.
