@@ -22,6 +22,8 @@ export interface PaintInputOptions {
    * momento (trocar cor, tamanho ou ferramenta) e o próximo carimbo já usa o valor novo.
    */
   brush: Brush;
+  /** Quando devolve `false`, a caneta não pinta (por exemplo, enquanto se posiciona um carimbo). */
+  enabled?: () => boolean;
 }
 
 /**
@@ -76,6 +78,7 @@ export function attachPaintInput(options: PaintInputOptions): () => void {
 
   const onPointerDown = (e: PointerEvent): void => {
     if (activePointer !== null) return;
+    if (options.enabled && !options.enabled()) return;
     if (e.pointerType === 'touch') return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
 
