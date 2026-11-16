@@ -75,6 +75,15 @@
           aria-label="Camadas"
           title="Camadas"
         ></button>
+        <button
+          id="import-image"
+          class="icon"
+          data-icon="image"
+          type="button"
+          aria-label="Importar imagem"
+          title="Importar imagem (carimbo)"
+        ></button>
+        <input id="image-file" type="file" accept="image/*" hidden />
       </div>
 
       <!-- Painel de camadas: a lista é preenchida por src/layers-panel.ts. -->
@@ -123,6 +132,32 @@
           ></button>
         </div>
       </section>
+    </div>
+
+    <!-- Barra do carimbo: aparece só enquanto uma imagem é posicionada (src/decal-controls.ts). -->
+    <div id="decal-bar" class="bottombar" role="toolbar" aria-label="Posicionar imagem">
+      <label class="slider" title="Lado maior da imagem na pele">
+        <span>Tamanho</span>
+        <input id="decal-size" type="range" min="10" max="250" step="1" value="60" />
+        <output id="decal-size-label" for="decal-size">60 mm</output>
+      </label>
+      <label class="slider" title="Girar a imagem">
+        <span>Girar</span>
+        <input id="decal-rotation" type="range" min="-180" max="180" step="1" value="0" />
+        <output id="decal-rotation-label" for="decal-rotation">0°</output>
+      </label>
+      <button
+        id="decal-white"
+        type="button"
+        aria-pressed="false"
+        title="Transforma o fundo branco em transparente"
+      >
+        Sem fundo
+      </button>
+      <button id="decal-cancel" type="button" title="Cancelar (Esc)">Cancelar</button>
+      <button id="decal-apply" class="primary" type="button" title="Aplicar (Enter)">
+        Aplicar
+      </button>
     </div>
 
     <div id="toast" role="status" hidden></div>

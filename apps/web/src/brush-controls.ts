@@ -13,6 +13,7 @@ import { getElement } from './dom';
  * Devolve uma função que desliga os atalhos de teclado.
  */
 export function setupBrushControls(viewer: Viewer): () => void {
+  // Os atalhos do pincel não valem enquanto se posiciona um carimbo.
   const settings: BrushSettings = structuredClone(DEFAULT_SETTINGS);
 
   const toolButtons: Record<BrushTool, HTMLButtonElement> = {
@@ -82,7 +83,7 @@ export function setupBrushControls(viewer: Viewer): () => void {
 
   // Atalhos: B = pincel, E = borracha, [ e ] = diminuir e aumentar o tamanho.
   const onKeyDown = (e: KeyboardEvent): void => {
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.ctrlKey || e.metaKey || e.altKey || viewer.isPlacingDecal()) return;
     switch (e.key.toLowerCase()) {
       case 'b':
         chooseTool('pen');
