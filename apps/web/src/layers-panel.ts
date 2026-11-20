@@ -1,5 +1,6 @@
 import type { LayerInfo, LayersState } from '@tattdraw/viewer';
 import { getElement } from './dom';
+import { setupDropdown } from './dropdown';
 import { createIcon } from './icons';
 
 /** O que o painel pede ao app. O painel não conhece o viewer: só chama estas funções. */
@@ -30,8 +31,6 @@ export interface LayersPanel {
  * recebido. Assim o painel sempre mostra o que realmente existe, inclusive depois de desfazer.
  */
 export function setupLayersPanel(actions: LayerActions): LayersPanel {
-  const toggle = getElement<HTMLButtonElement>('#layers-toggle');
-  const panel = getElement<HTMLElement>('#layers-panel');
   const list = getElement<HTMLUListElement>('#layer-list');
   const opacityInput = getElement<HTMLInputElement>('#layer-opacity');
   const opacityLabel = getElement<HTMLElement>('#opacity-label');
@@ -43,12 +42,7 @@ export function setupLayersPanel(actions: LayerActions): LayersPanel {
 
   /** Camada ativa no último `render`; os botões do rodapé agem sobre ela. */
   let activeId = '';
-
-  const setOpen = (open: boolean): void => {
-    panel.hidden = !open;
-    toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-pressed', String(open));
-  };
+  const detachDropdown = setupDropdown('#layers-toggle', '#layers-panel');
 
   const createRow = (layer: LayerInfo, isActive: boolean): HTMLLIElement => {
     const row = document.createElement('li');
@@ -97,8 +91,6 @@ export function setupLayersPanel(actions: LayerActions): LayersPanel {
     removeButton.disabled = state.layers.length <= 1;
   };
 
-  // `hidden` pode ser true, false ou "until-found"; qualquer valor diferente de false é "fechado".
-  toggle.addEventListener('click', () => setOpen(panel.hidden !== false));
   addButton.addEventListener('click', () => actions.add());
   upButton.addEventListener('click', () => actions.move(activeId, 1));
   downButton.addEventListener('click', () => actions.move(activeId, -1));
@@ -108,13 +100,5 @@ export function setupLayersPanel(actions: LayerActions): LayersPanel {
     actions.setOpacity(activeId, Number(opacityInput.value) / 100),
   );
 
-  const onKeyDown = (e: KeyboardEvent): void => {
-    if (e.key === 'Escape') setOpen(false);
-  };
-  window.addEventListener('keydown', onKeyDown);
-
-  return {
-    render,
-    detach: () => window.removeEventListener('keydown', onKeyDown),
-  };
+  return { render, detach: detachDropdown };
 }
