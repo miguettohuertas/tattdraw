@@ -72,8 +72,8 @@
           aria-expanded="false"
           aria-pressed="false"
           aria-controls="body-panel"
-          aria-label="Medidas do braço"
-          title="Medidas do braço"
+          aria-label="Corpo: parte e medidas"
+          title="Corpo: parte e medidas"
         ></button>
         <button
           id="layers-toggle"
@@ -97,8 +97,10 @@
         <input id="image-file" type="file" accept="image/*" hidden />
       </div>
 
-      <!-- Painel de medidas: os controles são criados por src/body-panel.ts. -->
-      <section id="body-panel" class="panel" aria-label="Medidas do braço" hidden>
+      <!-- Painel Corpo: parte do corpo e medidas do cliente. -->
+      <section id="body-panel" class="panel" aria-label="Corpo" hidden>
+        <!-- Botões das partes e controles de medida criados por src/body-panel.ts. -->
+        <div id="body-parts" class="segmented" role="group" aria-label="Parte do corpo"></div>
         <div id="body-fields"></div>
         <p class="panel-note">Ajuste antes de desenhar: o desenho estica junto com a pele.</p>
         <div class="panel-actions">
