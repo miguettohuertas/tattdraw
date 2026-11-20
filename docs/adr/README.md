@@ -18,3 +18,4 @@ Como criar um novo:
 | [0005](0005-desfazer-por-recortes.md)         | Desfazer guardando recortes da textura   | Aceita   |
 | [0006](0006-camadas.md)                       | Camadas como canvas transparentes        | Aceita   |
 | [0007](0007-carimbo-por-projecao.md)          | Carimbo por projeção, gravado no UV      | Aceita   |
+| [0008](0008-antebraco-parametrico.md)         | Antebraço paramétrico gerado por medidas | Aceita   |

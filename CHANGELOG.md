@@ -8,6 +8,11 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e as
 
 ### Adicionado
 
+- Antebraço de verdade no lugar da cápsula, gerado a partir de quatro medidas do cliente
+  (comprimento e circunferências do punho, do antebraço e do cotovelo), com painel de medidas
+  (ADR 0008).
+- Pacote `@tattdraw/body` com o gerador do antebraço, com testes.
+- Raycast acelerado com three-mesh-bvh (cerca de 190 vezes mais rápido no antebraço).
 - Carimbo: importar um desenho pronto (PNG, JPG), posicionar sobre a pele com caneta, mouse ou
   toque, ajustar tamanho e rotação e aplicar numa camada nova. Fundo branco vira transparente
   automaticamente em imagens sem transparência (ADR 0007).
