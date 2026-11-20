@@ -92,6 +92,8 @@ export class DecalTool {
     this.renderer = renderer;
     this.target = target;
     this.camera = camera;
+    // Só precisamos do primeiro ponto atingido; com a BVH, isso deixa o raio ainda mais rápido.
+    this.raycaster.firstHitOnly = true;
 
     this.previewMaterial = new MeshStandardMaterial({
       roughness,
@@ -266,6 +268,11 @@ export class DecalTool {
     }
     ctx.putImageData(imageData, 0, 0);
     return canvas;
+  }
+
+  /** Chamar depois de trocar a geometria do modelo (por exemplo, ao mudar as medidas). */
+  syncGeometry(): void {
+    this.preview.geometry = this.target.geometry;
   }
 
   /** Sai do modo de posicionamento (depois de aplicar ou cancelar). */

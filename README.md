@@ -4,9 +4,9 @@ App para tatuadores modelarem a parte do corpo do cliente em 3D, desenharem a ta
 gravarem um vídeo para mostrar como vai ficar. Roda no navegador e, empacotado com Capacitor, em
 tablets e celulares Android.
 
-> Estado atual: **prova de conceito**. Dá para pintar com caneta ou mouse num modelo provisório
-> (uma cápsula do tamanho de um antebraço), escolher cor e tamanho, apagar, desfazer, trabalhar em
-> camadas e aplicar desenhos prontos. Ainda faltam o modelo de corpo real e vídeo.
+> Estado atual: **prova de conceito**. Dá para ajustar um antebraço às medidas do cliente, pintar
+> nele com caneta ou mouse, escolher cor e tamanho, apagar, desfazer, trabalhar em camadas e
+> aplicar desenhos prontos. Ainda faltam outras partes do corpo, salvar o trabalho e vídeo.
 
 ## Como usar
 
@@ -24,6 +24,7 @@ tablets e celulares Android.
 | Botão ↶ ou Ctrl+Z                                    | Desfaz a última ação                              |
 | Botão ↷, Ctrl+Y ou Ctrl+Shift+Z                      | Refaz a ação desfeita                             |
 | Ícone de folhas empilhadas                           | Abre e fecha o painel de camadas (Esc fecha)      |
+| Ícone de régua                                       | Abre e fecha o painel de medidas do braço         |
 | Ícone de imagem                                      | Importa um desenho pronto para usar como carimbo  |
 
 O tamanho é a largura do traço na pele com pressão máxima da caneta; com pouca pressão, o traço
@@ -46,6 +47,21 @@ escolhida, que aparece destacada no painel. A lista mostra a camada de cima prim
 
 Desenhar, apagar, limpar, criar e excluir camada podem ser desfeitos. Ocultar, reordenar e mudar
 a opacidade não entram no histórico. O limite é de 8 camadas (4 com `?tex=4096`).
+
+### Medidas do braço
+
+O antebraço é gerado a partir de quatro medidas, tiradas do cliente com uma fita métrica:
+
+| Medida      | Onde medir                                      | Limites    |
+| ----------- | ----------------------------------------------- | ---------- |
+| Comprimento | Do punho até a dobra do cotovelo                | 16 a 36 cm |
+| Punho       | Circunferência logo acima do osso do punho      | 11 a 24 cm |
+| Antebraço   | Circunferência na parte mais grossa             | 16 a 42 cm |
+| Cotovelo    | Circunferência logo abaixo da dobra do cotovelo | 16 a 40 cm |
+
+**Ajuste as medidas antes de desenhar:** o desenho acompanha a pele, então estica se o braço
+mudar depois. "Restaurar medidas" volta ao padrão (26, 16, 26 e 24 cm). Mudar as medidas não
+entra no histórico. Detalhes em `docs/adr/0008-antebraco-parametrico.md`.
 
 ### Carimbo (desenho pronto)
 
@@ -108,6 +124,7 @@ tattdraw/
 ├─ apps/
 │  └─ web/                # o app: HTML, ponto de entrada e configuração do Vite
 ├─ packages/
+│  ├─ body/               # partes do corpo geradas por medidas (por enquanto, o antebraço)
 │  ├─ paint-engine/       # lógica de pintura, sem UI e sem three.js (testável)
 │  └─ viewer/             # cena 3D: câmera, luzes, modelo, materiais
 ├─ assets/                # modelos .glb e texturas (Git LFS) + licenças

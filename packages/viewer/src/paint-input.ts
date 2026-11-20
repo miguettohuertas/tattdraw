@@ -3,6 +3,7 @@ import type { Camera, Intersection, Mesh } from 'three';
 import { brushRadius, interpolateStroke } from '@tattdraw/paint-engine';
 import type { StrokePoint } from '@tattdraw/paint-engine';
 import type { BrushTool, PaintSurface } from './paint-surface';
+import { capturePointer } from './pointer-capture';
 
 export interface Brush {
   /** Pincel pinta com `color`; borracha deixa a camada transparente por onde passa. */
@@ -50,6 +51,8 @@ const SCREEN_SPACING_PX = 1;
 export function attachPaintInput(options: PaintInputOptions): () => void {
   const { canvas, camera, target, surface, brush } = options;
   const raycaster = new Raycaster();
+  // Só precisamos do primeiro ponto atingido; com a BVH (body-geometry.ts), isso é bem mais rápido.
+  raycaster.firstHitOnly = true;
   const ndc = new Vector2();
 
   let activePointer: number | null = null;
@@ -87,7 +90,7 @@ export function attachPaintInput(options: PaintInputOptions): () => void {
 
     e.stopImmediatePropagation();
     e.preventDefault();
-    canvas.setPointerCapture(e.pointerId);
+    capturePointer(canvas, e.pointerId);
     activePointer = e.pointerId;
     last = toPoint(e);
     // Tudo que for pintado até a caneta levantar conta como UMA ação para o desfazer.

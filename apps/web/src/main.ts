@@ -1,4 +1,5 @@
 import { createViewer } from '@tattdraw/viewer';
+import { setupBodyPanel } from './body-panel';
 import { setupBrushControls } from './brush-controls';
 import { setupDecalControls } from './decal-controls';
 import { getElement } from './dom';
@@ -45,6 +46,7 @@ layersPanel.render(viewer.getLayers());
 
 const detachBrushControls = setupBrushControls(viewer);
 const detachDecalControls = setupDecalControls(viewer);
+const detachBodyPanel = setupBodyPanel(viewer);
 
 undoButton.addEventListener('click', () => viewer.undo());
 redoButton.addEventListener('click', () => viewer.redo());
@@ -72,6 +74,7 @@ import.meta.hot?.dispose(() => {
   window.removeEventListener('keydown', onKeyDown);
   detachBrushControls();
   detachDecalControls();
+  detachBodyPanel();
   layersPanel.detach();
   stopFps();
   viewer.dispose();

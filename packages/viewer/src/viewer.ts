@@ -1,6 +1,5 @@
 import {
   AmbientLight,
-  CapsuleGeometry,
   Color,
   DirectionalLight,
   MathUtils,
@@ -11,6 +10,9 @@ import {
   WebGLRenderer,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { clampMeasurements, DEFAULT_FOREARM } from '@tattdraw/body';
+import type { ForearmMeasurements } from '@tattdraw/body';
+import { createForearmGeometry, disposeBodyGeometry } from './body-geometry';
 import { attachDecalInput } from './decal-input';
 import { DecalTool } from './decal-tool';
 import type { DecalSettings } from './decal-tool';
@@ -29,6 +31,8 @@ export interface ViewerOptions {
   onLayersChange?: (state: LayersState) => void;
   /** Avisa quando alguém tenta pintar numa camada oculta. */
   onPaintBlocked?: () => void;
+  /** Medidas iniciais do antebraço, em centímetros. */
+  measurements?: ForearmMeasurements;
 }
 
 export interface Viewer {
@@ -66,6 +70,13 @@ export interface Viewer {
   /** Desiste da imagem em posicionamento, sem mudar nada. */
   cancelDecal(): void;
   isPlacingDecal(): boolean;
+  /** Medidas atuais do antebraço, em centímetros. */
+  getMeasurements(): ForearmMeasurements;
+  /**
+   * Muda as medidas do antebraço. A pintura acompanha a pele: se o braço engrossa, o desenho
+   * estica junto. Não entra no histórico.
+   */
+  setMeasurements(changes: Partial<ForearmMeasurements>): void;
   /** Desfaz o último traço. Devolve `false` se não havia o que desfazer. */
   undo(): boolean;
   /** Refaz o último traço desfeito. Devolve `false` se não havia o que refazer. */
@@ -86,8 +97,8 @@ const DEFAULT_BRUSH: Brush = { tool: 'pen', radius: 0.0025, color: '#1a1a1a' };
 /**
  * Cria a cena 3D dentro de um <canvas> e liga a pintura.
  *
- * As medidas estão em metros. O modelo provisório é uma cápsula do tamanho aproximado de um
- * antebraço (4 cm de raio, 30 cm de comprimento) até escolhermos o modelo do corpo.
+ * As distâncias da cena estão em metros. O modelo é um antebraço gerado a partir das medidas do
+ * cliente (pacote `@tattdraw/body`, veja docs/adr/0008).
  */
 export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions = {}): Viewer {
   const renderer = new WebGLRenderer({ canvas, antialias: true });
@@ -109,12 +120,23 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
   surface.onHistoryChange = options.onHistoryChange ?? null;
   surface.onLayersChange = options.onLayersChange ?? null;
   surface.onPaintBlocked = options.onPaintBlocked ?? null;
-  const geometry = new CapsuleGeometry(0.04, 0.22, 16, 64);
+  let measurements = clampMeasurements({ ...DEFAULT_FOREARM, ...options.measurements });
   const material = new MeshStandardMaterial({ map: surface.texture, roughness: SKIN_ROUGHNESS });
-  const forearm = new Mesh(geometry, material);
-  forearm.rotation.z = Math.PI / 2;
+  const forearm = new Mesh(createForearmGeometry(measurements), material);
   scene.add(forearm);
   forearm.updateMatrixWorld();
+
+  // Refazer a malha custa alguns milissegundos. Enquanto o dedo arrasta um controle de medida,
+  // chegam vários pedidos por quadro: guardamos só o último e refazemos uma vez por quadro.
+  let rebuildPending = false;
+  const rebuildIfPending = (): void => {
+    if (!rebuildPending) return;
+    rebuildPending = false;
+    const old = forearm.geometry;
+    forearm.geometry = createForearmGeometry(measurements);
+    decal.syncGeometry();
+    disposeBodyGeometry(old);
+  };
 
   // A pintura e o carimbo precisam escutar o canvas ANTES do OrbitControls (veja paint-input.ts).
   const brush: Brush = { ...DEFAULT_BRUSH, ...options.brush };
@@ -150,6 +172,7 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
   resize();
 
   renderer.setAnimationLoop(() => {
+    rebuildIfPending();
     controls.update();
     surface.flush();
     renderer.render(scene, camera);
@@ -179,6 +202,11 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
       return result;
     },
     cancelDecal: () => decal.stop(),
+    getMeasurements: () => ({ ...measurements }),
+    setMeasurements(changes) {
+      measurements = clampMeasurements({ ...measurements, ...changes });
+      rebuildPending = true;
+    },
     isPlacingDecal: () => decal.active,
     // Durante o posicionamento, desfazer mexeria nas camadas por baixo da imagem: suspendemos.
     undo: () => !decal.active && surface.undo(),
@@ -190,7 +218,7 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
       detachDecal();
       decal.dispose();
       controls.dispose();
-      geometry.dispose();
+      disposeBodyGeometry(forearm.geometry);
       material.dispose();
       surface.dispose();
       renderer.dispose();

@@ -1,4 +1,5 @@
 import type { DecalTool } from './decal-tool';
+import { capturePointer } from './pointer-capture';
 
 /** Um toque conta como "tocar" (e não arrastar) se andar menos que isso, em pixels de tela. */
 const TAP_MAX_MOVE_PX = 10;
@@ -46,7 +47,7 @@ export function attachDecalInput(canvas: HTMLCanvasElement, decal: DecalTool): (
 
     e.stopImmediatePropagation();
     e.preventDefault();
-    canvas.setPointerCapture(e.pointerId);
+    capturePointer(canvas, e.pointerId);
     dragging = e.pointerId;
   };
 

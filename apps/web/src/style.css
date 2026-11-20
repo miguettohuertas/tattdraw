@@ -189,6 +189,8 @@ body {
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--bg);
+  /* Em telas baixas (celular deitado), o painel rola em vez de passar da tela. */
+  overflow-y: auto;
   pointer-events: auto;
 }
 
@@ -254,6 +256,33 @@ body {
   text-align: right;
 }
 
+#body-panel {
+  width: 300px;
+}
+
+#body-fields {
+  display: flex;
+  flex-direction: column;
+}
+
+.panel .measure span {
+  min-width: 96px;
+}
+
+.panel .measure output {
+  min-width: 52px;
+}
+
+.panel-note {
+  margin: 0 4px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.panel-actions #body-reset {
+  flex: 1;
+}
+
 .panel-actions {
   display: flex;
   gap: 6px;
@@ -262,6 +291,28 @@ body {
 .panel-actions #clear {
   flex: 1;
   padding: 0 8px;
+}
+
+/* ---------- Telas estreitas (celular deitado) ---------- */
+
+/* Abaixo de 860 px, apertamos a barra de cima para ela continuar numa linha só. */
+@media (max-width: 860px) {
+  .topbar {
+    gap: 8px;
+  }
+
+  .group {
+    gap: 6px;
+  }
+
+  .swatch {
+    width: 32px;
+    height: 32px;
+  }
+
+  .topbar .slider input {
+    width: 72px;
+  }
 }
 
 /* ---------- Barra do carimbo ---------- */
