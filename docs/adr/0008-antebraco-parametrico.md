@@ -55,3 +55,8 @@ Opção 3, num pacote novo, `@tattdraw/body`, que só faz contas (não depende d
   painel de medidas. O formato de malha (`MeshData`) e o resto do app não mudam.
 - O carimbo (ADR 0007) agora estica nas laterais de um braço de verdade; enrolar sem esticar
   continua pendente.
+
+## Atualização (2026-11-20)
+
+O gerador virou um gerador de membros com uma receita por parte, e o painel passou a ser montado
+a partir da lista de partes (ADR 0009). O antebraço continua gerado exatamente igual.
