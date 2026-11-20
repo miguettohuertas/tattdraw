@@ -17,7 +17,11 @@ export interface PaintInputOptions {
   canvas: HTMLCanvasElement;
   camera: Camera;
   target: Mesh;
-  surface: PaintSurface;
+  /**
+   * Em qual superfície pintar. É uma função porque a superfície muda quando o tatuador troca de
+   * parte do corpo (cada parte guarda o seu desenho).
+   */
+  getSurface: () => PaintSurface;
   /**
    * O pincel atual. É lido a cada carimbo, então quem chamou pode alterar o objeto a qualquer
    * momento (trocar cor, tamanho ou ferramenta) e o próximo carimbo já usa o valor novo.
@@ -49,7 +53,7 @@ const SCREEN_SPACING_PX = 1;
  * Devolve uma função que desliga tudo.
  */
 export function attachPaintInput(options: PaintInputOptions): () => void {
-  const { canvas, camera, target, surface, brush } = options;
+  const { canvas, camera, target, getSurface, brush } = options;
   const raycaster = new Raycaster();
   // Só precisamos do primeiro ponto atingido; com a BVH (body-geometry.ts), isso é bem mais rápido.
   raycaster.firstHitOnly = true;
@@ -57,6 +61,8 @@ export function attachPaintInput(options: PaintInputOptions): () => void {
 
   let activePointer: number | null = null;
   let last: StrokePoint | null = null;
+  /** A superfície em que o traço atual começou: ele termina nela, aconteça o que acontecer. */
+  let surface: PaintSurface | null = null;
 
   const hitAt = (clientX: number, clientY: number): Intersection | undefined => {
     const rect = canvas.getBoundingClientRect();
@@ -76,7 +82,7 @@ export function attachPaintInput(options: PaintInputOptions): () => void {
   });
 
   const stampAt = (point: StrokePoint, hit: Intersection): void => {
-    surface.stamp(hit, brushRadius(brush.radius, point.pressure), brush.tool, brush.color);
+    surface?.stamp(hit, brushRadius(brush.radius, point.pressure), brush.tool, brush.color);
   };
 
   const onPointerDown = (e: PointerEvent): void => {
@@ -94,6 +100,7 @@ export function attachPaintInput(options: PaintInputOptions): () => void {
     activePointer = e.pointerId;
     last = toPoint(e);
     // Tudo que for pintado até a caneta levantar conta como UMA ação para o desfazer.
+    surface = getSurface();
     surface.beginStroke();
     stampAt(last, hit);
   };
@@ -120,7 +127,8 @@ export function attachPaintInput(options: PaintInputOptions): () => void {
     if (e.pointerId !== activePointer) return;
     activePointer = null;
     last = null;
-    surface.endStroke();
+    surface?.endStroke();
+    surface = null;
     if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
   };
 
@@ -130,7 +138,7 @@ export function attachPaintInput(options: PaintInputOptions): () => void {
   canvas.addEventListener('pointercancel', onPointerEnd);
 
   return () => {
-    surface.endStroke();
+    surface?.endStroke();
     canvas.removeEventListener('pointerdown', onPointerDown);
     canvas.removeEventListener('pointermove', onPointerMove);
     canvas.removeEventListener('pointerup', onPointerEnd);

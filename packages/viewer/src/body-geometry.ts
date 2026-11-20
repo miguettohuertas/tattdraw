@@ -1,12 +1,12 @@
 import { BufferAttribute, BufferGeometry, Mesh } from 'three';
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh';
-import { buildForearm } from '@tattdraw/body';
-import type { ForearmMeasurements } from '@tattdraw/body';
+import { buildBodyPart } from '@tattdraw/body';
+import type { BodyPartId, LimbMeasurements } from '@tattdraw/body';
 
 /**
  * three-mesh-bvh: raycast rápido em malhas com muitos triângulos.
  *
- * Sem ajuda, um raio testa todos os ~47 mil triângulos do antebraço, um por um. A pintura lança
+ * Sem ajuda, um raio testa todos os ~47 mil triângulos do modelo, um por um. A pintura lança
  * um raio por pixel percorrido pela caneta, então isso pesaria. Uma BVH ("hierarquia de caixas")
  * agrupa os triângulos em caixas dentro de caixas: o raio só desce nas caixas que atravessa e
  * testa poucas dezenas de triângulos.
@@ -23,10 +23,10 @@ function installBvh(): void {
   installed = true;
 }
 
-/** Cria a geometria do antebraço com estas medidas, já com a BVH pronta para o raycast. */
-export function createForearmGeometry(measurements: ForearmMeasurements): BufferGeometry {
+/** Cria a geometria de uma parte do corpo com estas medidas, já com a BVH pronta para o raycast. */
+export function createBodyGeometry(id: BodyPartId, measurements: LimbMeasurements): BufferGeometry {
   installBvh();
-  const data = buildForearm(measurements);
+  const data = buildBodyPart(id, measurements);
   const geometry = new BufferGeometry();
   geometry.setAttribute('position', new BufferAttribute(data.positions, 3));
   geometry.setAttribute('normal', new BufferAttribute(data.normals, 3));
