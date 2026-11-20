@@ -1,15 +1,11 @@
-import { DEFAULT_FOREARM, FOREARM_LIMITS } from '@tattdraw/viewer';
-import type { ForearmMeasurements, Viewer } from '@tattdraw/viewer';
+import { BODY_PART_ORDER, BODY_PARTS } from '@tattdraw/viewer';
+import type { BodyPartId, LimbMeasurements, Viewer } from '@tattdraw/viewer';
 import { getElement } from './dom';
 import { setupDropdown } from './dropdown';
+import { showToast } from './toast';
 
-/** Nome de cada medida na tela, na ordem em que aparecem no painel. */
-const FIELDS: { key: keyof ForearmMeasurements; label: string; hint: string }[] = [
-  { key: 'lengthCm', label: 'Comprimento', hint: 'Do punho à dobra do cotovelo' },
-  { key: 'wristCm', label: 'Punho', hint: 'Circunferência logo acima do osso do punho' },
-  { key: 'forearmCm', label: 'Antebraço', hint: 'Circunferência na parte mais grossa' },
-  { key: 'elbowCm', label: 'Cotovelo', hint: 'Circunferência logo abaixo da dobra do cotovelo' },
-];
+/** Ordem das medidas no painel. Os nomes mudam de parte para parte (veja `BODY_PARTS`). */
+const KEYS: (keyof LimbMeasurements)[] = ['lengthCm', 'distalCm', 'peakCm', 'proximalCm'];
 
 /** Formato brasileiro: "16 cm", "16,5 cm". */
 function formatCm(value: number): string {
@@ -17,36 +13,44 @@ function formatCm(value: number): string {
 }
 
 /**
- * Painel de medidas: o tatuador mede o braço do cliente com uma fita e passa os números aqui.
+ * Painel "Corpo": escolher a parte do corpo e ajustar as medidas do cliente.
  *
- * Os controles são criados a partir de `FIELDS` e dos limites do pacote `@tattdraw/body`, para
- * o painel e o gerador do braço nunca discordarem dos valores aceitos.
+ * Os controles de medida são os mesmos para todas as partes (comprimento e três
+ * circunferências); só mudam os nomes, os limites e as explicações, que vêm de `BODY_PARTS`.
+ * Assim, uma parte nova no pacote `@tattdraw/body` aparece aqui sem mudar este arquivo.
  */
 export function setupBodyPanel(viewer: Viewer): () => void {
+  const partsContainer = getElement<HTMLElement>('#body-parts');
   const fieldsContainer = getElement<HTMLElement>('#body-fields');
   const resetButton = getElement<HTMLButtonElement>('#body-reset');
   const detachDropdown = setupDropdown('#body-toggle', '#body-panel');
 
-  const inputs = new Map<
-    keyof ForearmMeasurements,
-    { input: HTMLInputElement; output: HTMLOutputElement }
-  >();
+  // Um botão por parte do corpo.
+  const partButtons = new Map<BodyPartId, HTMLButtonElement>();
+  for (const id of BODY_PART_ORDER) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.part = id;
+    button.textContent = BODY_PARTS[id].name;
+    button.addEventListener('click', () => choosePart(id));
+    partsContainer.append(button);
+    partButtons.set(id, button);
+  }
 
-  for (const { key, label, hint } of FIELDS) {
+  // Um controle por medida. Os nomes e limites são preenchidos por `render`.
+  const rows = new Map<
+    keyof LimbMeasurements,
+    { row: HTMLLabelElement; name: HTMLElement; input: HTMLInputElement; output: HTMLOutputElement }
+  >();
+  for (const key of KEYS) {
     const row = document.createElement('label');
     row.className = 'slider measure';
-    row.title = hint;
 
     const name = document.createElement('span');
-    name.textContent = label;
-
     const input = document.createElement('input');
     input.type = 'range';
     input.id = `measure-${key}`;
-    input.min = String(FOREARM_LIMITS[key].min);
-    input.max = String(FOREARM_LIMITS[key].max);
     input.step = '0.5';
-
     const output = document.createElement('output');
     output.htmlFor.add(input.id);
 
@@ -58,21 +62,41 @@ export function setupBodyPanel(viewer: Viewer): () => void {
 
     row.append(name, input, output);
     fieldsContainer.append(row);
-    inputs.set(key, { input, output });
+    rows.set(key, { row, name, input, output });
   }
 
-  const show = (measurements: ForearmMeasurements): void => {
-    for (const [key, { input, output }] of inputs) {
+  /** Redesenha o painel para a parte atual e as medidas dela. */
+  const render = (): void => {
+    const id = viewer.getBodyPart();
+    const part = BODY_PARTS[id];
+    const measurements = viewer.getMeasurements();
+
+    for (const [partId, button] of partButtons) {
+      button.setAttribute('aria-pressed', String(partId === id));
+    }
+    for (const [key, { row, name, input, output }] of rows) {
+      const field = part.fields[key];
+      row.title = field.hint;
+      name.textContent = field.label;
+      input.min = String(part.limits[key].min);
+      input.max = String(part.limits[key].max);
       input.value = String(measurements[key]);
       output.textContent = formatCm(measurements[key]);
     }
   };
 
+  const choosePart = (id: BodyPartId): void => {
+    if (id === viewer.getBodyPart()) return;
+    viewer.setBodyPart(id);
+    render();
+    showToast(`${BODY_PARTS[id].name}: cada parte guarda o seu próprio desenho.`);
+  };
+
   resetButton.addEventListener('click', () => {
-    viewer.setMeasurements(DEFAULT_FOREARM);
-    show(DEFAULT_FOREARM);
+    viewer.setMeasurements(BODY_PARTS[viewer.getBodyPart()].defaults);
+    render();
   });
 
-  show(viewer.getMeasurements());
+  render();
   return detachDropdown;
 }

@@ -8,6 +8,10 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e as
 
 ### Adicionado
 
+- Braço (do cotovelo à axila), com bíceps, tríceps e deltoide e medidas próprias: comprimento,
+  cotovelo, bíceps e axila (ADR 0009).
+- Escolha da parte do corpo no painel Corpo. Cada parte guarda o seu desenho, com camadas e
+  histórico separados, e as suas medidas.
 - Antebraço de verdade no lugar da cápsula, gerado a partir de quatro medidas do cliente
   (comprimento e circunferências do punho, do antebraço e do cotovelo), com painel de medidas
   (ADR 0008).
@@ -40,6 +44,10 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e as
 
 ### Alterado
 
+- `@tattdraw/body`: o gerador do antebraço virou um gerador de membros (`buildLimb`) com uma
+  receita por parte (`BODY_PARTS`). As medidas passaram a ter nomes genéricos (`distalCm`,
+  `peakCm`, `proximalCm`).
+- O painel de medidas virou o painel Corpo.
 - A borracha agora apaga de verdade (deixa a camada transparente) em vez de pintar com a cor da
   pele, e age só na camada escolhida.
 - "Limpar" apaga só a camada escolhida e mudou para dentro do painel de camadas.
