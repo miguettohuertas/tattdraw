@@ -1,5 +1,6 @@
 import { createViewer } from '@tattdraw/viewer';
 import { setupBrushControls } from './brush-controls';
+import { setupDecalControls } from './decal-controls';
 import { getElement } from './dom';
 import { startFpsMeter } from './fps';
 import { decorateIcons } from './icons';
@@ -43,6 +44,7 @@ const viewer = createViewer(canvas, {
 layersPanel.render(viewer.getLayers());
 
 const detachBrushControls = setupBrushControls(viewer);
+const detachDecalControls = setupDecalControls(viewer);
 
 undoButton.addEventListener('click', () => viewer.undo());
 redoButton.addEventListener('click', () => viewer.redo());
@@ -69,6 +71,7 @@ const stopFps = startFpsMeter((fps) => {
 import.meta.hot?.dispose(() => {
   window.removeEventListener('keydown', onKeyDown);
   detachBrushControls();
+  detachDecalControls();
   layersPanel.detach();
   stopFps();
   viewer.dispose();

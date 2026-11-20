@@ -264,6 +264,39 @@ export class PaintSurface {
     return true;
   }
 
+  /**
+   * Coloca uma imagem (do tamanho da textura) numa camada nova, acima da ativa, com o nome dado.
+   * Conta como UMA ação no histórico: desfazer tira a camada inteira.
+   *
+   * Se o limite de camadas já foi atingido, a imagem vai para a camada ativa (também uma ação só).
+   * Devolve onde a imagem foi parar, ou `null` se não deu para aplicar agora.
+   */
+  addImageLayer(image: HTMLCanvasElement, name: string): 'new-layer' | 'active-layer' | null {
+    if (this.strokeActive) return null;
+
+    if (this.layers.length >= this.maxLayers) {
+      const layer = this.active;
+      this.syncBackup(layer);
+      layer.ctx.drawImage(image, 0, 0, this.size, this.size);
+      layer.blank = false;
+      this.commit(layer, { x: 0, y: 0, width: this.size, height: this.size });
+      return 'active-layer';
+    }
+
+    const layer = this.createLayer();
+    layer.info.name = name;
+    layer.ctx.drawImage(image, 0, 0, this.size, this.size);
+    layer.blank = false;
+    this.layers.splice(this.layers.indexOf(this.active) + 1, 0, layer);
+    this.active = layer;
+    // Desfazer tira a camada; refazer a recoloca com os pixels (veja `applyEntry`).
+    this.history.push({ kind: 'delete-layer', layerId: layer.info.id });
+    this.invalidateAll();
+    this.notifyLayers();
+    this.notifyHistory();
+    return 'new-layer';
+  }
+
   /** Exclui uma camada (sempre sobra pelo menos uma). Pode ser desfeito. */
   removeLayer(id: string): boolean {
     if (this.strokeActive || this.layers.length <= 1 || !this.findLayer(id)) return false;

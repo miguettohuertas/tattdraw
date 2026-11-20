@@ -24,6 +24,7 @@ const ICONS = {
   up: ['M12 19V5', 'M6 11l6-6 6 6'],
   down: ['M12 5v14', 'M6 13l6 6 6-6'],
   trash: ['M4 7h16', 'M9 7V4h6v3', 'M6.5 7l1 13h9l1-13'],
+  image: ['M4 5h16v14H4z', 'M4 16l5-5 4 4 2.5-2.5L20 17', 'M15 8.5a1.5 1.5 0 1 0 0 0.01'],
 } as const;
 
 export type IconName = keyof typeof ICONS;

@@ -17,3 +17,4 @@ Como criar um novo:
 | [0004](0004-somente-ferramentas-gratuitas.md) | Somente ferramentas sem custo            | Aceita   |
 | [0005](0005-desfazer-por-recortes.md)         | Desfazer guardando recortes da textura   | Aceita   |
 | [0006](0006-camadas.md)                       | Camadas como canvas transparentes        | Aceita   |
+| [0007](0007-carimbo-por-projecao.md)          | Carimbo por projeção, gravado no UV      | Aceita   |

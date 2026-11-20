@@ -11,6 +11,9 @@ import {
   WebGLRenderer,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { attachDecalInput } from './decal-input';
+import { DecalTool } from './decal-tool';
+import type { DecalSettings } from './decal-tool';
 import { attachPaintInput } from './paint-input';
 import type { Brush } from './paint-input';
 import { PaintSurface } from './paint-surface';
@@ -46,6 +49,23 @@ export interface Viewer {
   setLayerOpacity(id: string, opacity: number): void;
   /** Move a camada na pilha: +1 sobe, -1 desce. */
   moveLayer(id: string, delta: number): void;
+  /**
+   * Começa a posicionar uma imagem sobre a pele. Enquanto isso, a caneta move a imagem em vez
+   * de pintar, e desfazer/refazer ficam suspensos.
+   */
+  startDecal(image: HTMLCanvasElement, settings: DecalSettings): void;
+  /** Troca a imagem em posicionamento (por exemplo, com e sem fundo branco). */
+  setDecalImage(image: HTMLCanvasElement): void;
+  /** Muda tamanho ou rotação da imagem em posicionamento. */
+  setDecalSettings(changes: Partial<DecalSettings>): void;
+  /**
+   * Grava a imagem numa camada nova chamada `layerName`. Devolve onde ela foi parar
+   * (`'active-layer'` quando o limite de camadas foi atingido), ou `null` se não havia imagem.
+   */
+  applyDecal(layerName: string): 'new-layer' | 'active-layer' | null;
+  /** Desiste da imagem em posicionamento, sem mudar nada. */
+  cancelDecal(): void;
+  isPlacingDecal(): boolean;
   /** Desfaz o último traço. Devolve `false` se não havia o que desfazer. */
   undo(): boolean;
   /** Refaz o último traço desfeito. Devolve `false` se não havia o que refazer. */
@@ -55,6 +75,7 @@ export interface Viewer {
 }
 
 const SKIN_COLOR = '#d9a58a';
+const SKIN_ROUGHNESS = 0.6;
 
 /** Campo de visão vertical em telas largas, em graus. */
 const BASE_FOV = 40;
@@ -89,15 +110,24 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
   surface.onLayersChange = options.onLayersChange ?? null;
   surface.onPaintBlocked = options.onPaintBlocked ?? null;
   const geometry = new CapsuleGeometry(0.04, 0.22, 16, 64);
-  const material = new MeshStandardMaterial({ map: surface.texture, roughness: 0.6 });
+  const material = new MeshStandardMaterial({ map: surface.texture, roughness: SKIN_ROUGHNESS });
   const forearm = new Mesh(geometry, material);
   forearm.rotation.z = Math.PI / 2;
   scene.add(forearm);
   forearm.updateMatrixWorld();
 
-  // A pintura precisa escutar o canvas ANTES do OrbitControls (veja paint-input.ts).
+  // A pintura e o carimbo precisam escutar o canvas ANTES do OrbitControls (veja paint-input.ts).
   const brush: Brush = { ...DEFAULT_BRUSH, ...options.brush };
-  const detachPaint = attachPaintInput({ canvas, camera, target: forearm, surface, brush });
+  const decal = new DecalTool(renderer, forearm, camera, SKIN_ROUGHNESS);
+  const detachPaint = attachPaintInput({
+    canvas,
+    camera,
+    target: forearm,
+    surface,
+    brush,
+    enabled: () => !decal.active,
+  });
+  const detachDecal = attachDecalInput(canvas, decal);
 
   // OrbitControls: arrastar gira, pinça/roda dá zoom, botão direito arrasta a cena.
   const controls = new OrbitControls(camera, canvas);
@@ -139,12 +169,26 @@ export function createViewer(canvas: HTMLCanvasElement, options: ViewerOptions =
     setLayerVisible: (id, visible) => surface.setLayerVisible(id, visible),
     setLayerOpacity: (id, opacity) => surface.setLayerOpacity(id, opacity),
     moveLayer: (id, delta) => surface.moveLayer(id, delta),
-    undo: () => surface.undo(),
-    redo: () => surface.redo(),
+    startDecal: (image, settings) => decal.start(image, settings),
+    setDecalImage: (image) => decal.setImage(image),
+    setDecalSettings: (changes) => decal.setSettings(changes),
+    applyDecal(layerName) {
+      if (!decal.active) return null;
+      const result = surface.addImageLayer(decal.bake(surface.size), layerName);
+      if (result) decal.stop();
+      return result;
+    },
+    cancelDecal: () => decal.stop(),
+    isPlacingDecal: () => decal.active,
+    // Durante o posicionamento, desfazer mexeria nas camadas por baixo da imagem: suspendemos.
+    undo: () => !decal.active && surface.undo(),
+    redo: () => !decal.active && surface.redo(),
     dispose() {
       renderer.setAnimationLoop(null);
       observer.disconnect();
       detachPaint();
+      detachDecal();
+      decal.dispose();
       controls.dispose();
       geometry.dispose();
       material.dispose();
